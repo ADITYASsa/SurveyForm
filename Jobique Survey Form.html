@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>JOBIQUE</h2>
+        <h4>SURVEY FORM</h4>
+        <form id="empForm" method="post">
+            <div class="form-group">
+                <span><label for="empId">JOBIQUE ID:</label> <label id="empIdMsg">
+                    </label></span>
+                <input type="text" class="form-control" name="empId" id="empId" placeholder="Enter Employee ID"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="empName">Candidate Name:</label>
+                <input type="text" class="form-control" id="empName" placeholder="Enter Your Name" name="empName">
+            </div>
+            <div class="form-group">
+                <label for="empEmail">Email:</label>
+                <input type="email" class="form-control" id="empEmail" placeholder="Enter Your Email"
+                    name="empEmail">
+            </div>
+
+            <div class="form-group">
+                <label for="empHired">Are you currently employed in any company?</label>
+                <input type="text" class="form-control" id="empHired" placeholder="Enter Yes/No" name="empHired">
+            </div> 
+            
+        
+
+            <div class="form-group">
+                <label for="empNeedJob">Are you currently looking for a job or a switch from existing job?</label>
+                <input type="text" class="form-control" id="empNeedJob" placeholder="Enter Yes/No" name="empNeedJob">
+            </div>
+
+            <div class="form-group">
+                <label for="empPrefer">You Prefer a Non-IT job? </label>
+                <input type="text" class="form-control" id="empPrefer" placeholder="Enter Yes/No" name="empPrefer">
+            
+            </div>
+
+            <div class="form-group">
+                <label for="empRate">On a scale of 1 to 5 , 5 being BEST, how do you rate your experience with JOBIQUE portal? </label>
+                <input type="text" class="form-control" id="empRate" placeholder="Rate Us on the scale of 1 to 5" name="empRate">
+            
+            </div>
+
+
+
+            <input type="button" class="btn btn-primary" id="empSave" value="Save" onclick="saveEmployee();">
+        </form>
+    </div>
+    <script>
+        $("#empId").focus();
+        function validateAndGetFormData() {
+            var empIdVar = $("#empId").val();
+            if (empIdVar === "") {
+                alert("Employee ID Required Value");
+                $("#empId").focus();
+                return "";
+            }
+            var empNameVar = $("#empName").val();
+            if (empNameVar === "") {
+                alert("Employee Name is Required Value");
+                $("#empName").focus();
+                return "";
+            }
+            var empEmailVar = $("#empEmail").val();
+            if (empEmailVar === "") {
+                alert("Employee Email is Required Value");
+                $("#empEmail").focus();
+                return "";
+            }    
+            var empHiredVar = $("#empHired").val();
+            if (empEmailVar === "") {
+                alert("This Field is Required.");
+                $("#empHired").focus();
+                return "";
+            }
+            var empNeedJobVar = $("#empNeedJob").val();
+            if (empNeedJobVar === "") {
+                alert("This Field is Required.");
+                $("#empNeedJob").focus();
+                return "";
+            }
+            var empPreferVar = $("#empPrefer").val();
+            if (empPreferVar === "") {
+                alert("This Field is Required.");
+                $("#empPrefer").focus();
+                return "";
+
+            }
+            var empRateVar = $("#empRate").val();
+            if (empRateVar === "") {
+                alert("This Field is Required.");
+                $("#empRate").focus();
+                return "";
+            }
+            var jsonStrObj = {
+                empId: empIdVar,
+                empName: empNameVar,
+                empEmail: empEmailVar,
+                empHired:empHiredVar,
+                empNeedJob:empNeedJobVar,
+                empPrefer:empPreferVar,
+                empRate: empRateVar,
+
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        // This method is used to create PUT Json request.
+        function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n"
+                + "\"token\" : \""
+                + connToken
+                + "\","
+                + "\"dbName\": \""
+                + dbName
+                + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                + "\"rel\" : \""
+                + relName + "\","
+                + "\"jsonStr\": \n"
+                + jsonObj
+                + "\n"
+                + "}";
+            return putRequest;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+        function resetForm() {
+            $("#empId").val("")
+            $("#empName").val("");
+            $("#empEmail").val("");
+            $("#empHired").val("");
+            $("#empNeedJob").val("");
+            $("#empPrefer").val("");
+            $("#empRate").val("");
+            $("#empId").focus();
+        }
+        function saveEmployee() {
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var putReqStr = createPUTRequest("90938527|-31948831364659471|90946956",
+                jsonStr, "JOBIQUE", "EMP-REL");
+            alert(putReqStr);
+            jQuery.ajaxSetup({ async: false });
+            var resultObj = executeCommand(putReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            alert(JSON.stringify(resultObj));
+            jQuery.ajaxSetup({ async: true });
+            resetForm();
+        }
+    </script>
+</body>
+
+</html>
